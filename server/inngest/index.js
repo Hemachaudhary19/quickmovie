@@ -12,9 +12,11 @@ const syncUserCreation = inngest.createFunction(
   async ({ event }) => {
    const{ id, first_name, last_name, email_address, image_url} =event.data
    console.log("email_address", email_address)
+
+   const email = Array.isArray(email_address) ? email_address[0].email_address : email_address;
    const userData = {
     _id : id,
-    email : email_address,
+    email : email,
     name: first_name +' '+ last_name,
     image:image_url
    }
@@ -46,15 +48,24 @@ const syncUserUpdation = inngest.createFunction(
   { id: 'update-user-from-clerk' },
   { event: 'clerk/user.updated' },
   async ({ event }) => {
-  const{ id, first_name, last_name, email_address, image_url} =event.data
-   const userData = {
-    _id : id,
-    email : email_address[0].email_address,
-    name: first_name +' '+ last_name,
-    image:image_url
-   }
-   await User.findByIdAndUpdate(id,userData)
-  },
+    try {
+      const { id, first_name, last_name, email_address, image_url } = event.data;
+      const email = Array.isArray(email_address) ? email_address[0].email_address : email_address;
+      const userData = {
+        email,
+        name: first_name + ' ' + last_name,
+        image: image_url
+      };
+      const updatedUser = await User.findByIdAndUpdate(id, userData, { new: true });
+      if (!updatedUser) {
+        console.log(`User with id ${id} not found`);
+      }
+      return { success: true };
+    } catch (error) {
+      console.error("Error updating user:", error);
+      return { success: false, error: error.message };
+    }
+  }
 );
 
 
