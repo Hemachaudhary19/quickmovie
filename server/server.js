@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 import connectDB from "./configs/db.js";
 import { clerkMiddleware } from "@clerk/express";
 import { serve } from "inngest/express";
-import { inngest } from "./inngest/index.js";
+import { inngest, functions } from "./inngest/index.js";
 
 dotenv.config();
 
@@ -18,7 +18,7 @@ app.use(cors());
 app.use(clerkMiddleware());
 
 // const inngest = new Inngest({ id: "my-app" });
-const functions = [];
+// const functions = [];
 
 app.get("/", (req, res) => res.send("server is Live"));
 
