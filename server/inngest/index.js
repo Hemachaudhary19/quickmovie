@@ -1,8 +1,9 @@
-import { User } from "@clerk/express";
+import User from "../configs/models/User.js";
 import { Inngest } from "inngest";
 
 // create inngest client
-export const inngest = new Inngest({ name: "Quick Movie Show" });
+// export const inngest = new Inngest({ name: "Quick Movie Show" });
+export const inngest = new Inngest({ id: "my-app" });
 
 //Inngest Function to save user data to a database
 const syncUserCreation = inngest.createFunction(
