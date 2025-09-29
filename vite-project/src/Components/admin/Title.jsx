@@ -1,0 +1,11 @@
+import React from 'react'
+
+const Title = ({ text1,text2 }) => {
+  return (
+    <div><h1 className='font-medium text-2xl'>
+        {text1}<span className='underline text-primary'></span>{text2}
+        </h1></div>
+  )
+}
+
+export default Title
