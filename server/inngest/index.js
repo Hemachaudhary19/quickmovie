@@ -10,17 +10,26 @@ const syncUserCreation = inngest.createFunction(
   { id: 'sync-user-from-clerk' },
   { event: 'clerk/user.created' },
   async ({ event }) => {
-   const{ id, first_name, last_name, email_address, image_url} =event.data
-   console.log("email_address", email_address)
+const { id, first_name, last_name, email_addresses, image_url } = event.data;
 
-   const email = Array.isArray(email_address) ? email_address[0].email_address : email_address;
-   const userData = {
-    _id : id,
-    email : email,
-    name: first_name +' '+ last_name,
-    image:image_url
-   }
-   await User.create(userData)
+// Clerk sends email_addresses as an array of objects
+const email = Array.isArray(email_addresses) && email_addresses.length > 0
+  ? email_addresses[0].email_address
+  : null;
+
+if (!email) {
+  throw new Error("User email not found in event data");
+}
+
+const userData = {
+  _id: id,
+  email: email,
+  name: `${first_name} ${last_name}`.trim(),
+  image: image_url
+};
+
+await User.create(userData);
+
   },
 );
 //inngest function to delete user from database
@@ -49,14 +58,20 @@ const syncUserUpdation = inngest.createFunction(
   { event: 'clerk/user.updated' },
   async ({ event }) => {
     try {
-      const { id, first_name, last_name, email_address, image_url } = event.data;
-      const email = Array.isArray(email_address) ? email_address[0].email_address : email_address;
-      const userData = {
-        email,
-        name: first_name + ' ' + last_name,
-        image: image_url
-      };
-      const updatedUser = await User.findByIdAndUpdate(id, userData, { new: true });
+     const { id, first_name, last_name, email_addresses, image_url } = event.data;
+
+const email = Array.isArray(email_addresses) && email_addresses.length > 0
+  ? email_addresses[0].email_address
+  : null;
+
+const userData = {
+  email,
+  name: `${first_name} ${last_name}`.trim(),
+  image: image_url
+};
+
+await User.findByIdAndUpdate(id, userData, { new: true });
+
       if (!updatedUser) {
         console.log(`User with id ${id} not found`);
       }
